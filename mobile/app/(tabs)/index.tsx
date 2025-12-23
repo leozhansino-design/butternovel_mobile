@@ -215,19 +215,67 @@ function FullScreenStoryCard({ story, isActive }: { story: Story; isActive: bool
   );
 }
 
+// 临时模拟数据（API 连接后删除）
+const MOCK_STORIES: Story[] = [
+  {
+    id: '1',
+    title: '重生之都市修仙',
+    blurb: '一代仙尊渡劫失败，重生到都市少年身上。且看他如何在这钢筋水泥的丛林中，重新踏上修仙之路...',
+    authorId: '1',
+    authorName: '作者',
+    likeCount: 12500,
+    commentCount: 342,
+    readCount: 85000,
+    wordCount: 180000,
+    category: '都市',
+    createdAt: '2024-01-15',
+  },
+  {
+    id: '2',
+    title: '星际争霸：人类崛起',
+    blurb: '当人类第一次踏入星际时代，才发现宇宙中早已群雄割据。在这弱肉强食的星际时代，人类该何去何从...',
+    authorId: '1',
+    authorName: '作者',
+    likeCount: 8900,
+    commentCount: 567,
+    readCount: 62000,
+    wordCount: 220000,
+    category: '科幻',
+    createdAt: '2024-01-10',
+  },
+  {
+    id: '3',
+    title: '龙王殿',
+    blurb: '他是华夏最强战神，却为了一个女人甘愿隐姓埋名。三年后，王者归来，天下震动...',
+    authorId: '1',
+    authorName: '作者',
+    likeCount: 25000,
+    commentCount: 1200,
+    readCount: 150000,
+    wordCount: 350000,
+    category: '玄幻',
+    createdAt: '2024-01-05',
+  },
+];
+
 export default function ForYouScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
 
-  // 从 API 获取故事列表
-  const { data, isLoading, isError, refetch, isFetching } = useQuery<StoriesResponse>({
-    queryKey: ['stories', 'for-you'],
-    queryFn: () => api.get<StoriesResponse>('/stories/feed'),
-    staleTime: 1000 * 60 * 5, // 5分钟缓存
-  });
+  // TODO: API 连接后替换为真实数据
+  // const { data, isLoading, isError, refetch, isFetching } = useQuery<StoriesResponse>({
+  //   queryKey: ['stories', 'for-you'],
+  //   queryFn: () => api.get<StoriesResponse>('/stories/feed'),
+  //   staleTime: 1000 * 60 * 5,
+  // });
+  // const stories = data?.stories || [];
 
-  const stories = data?.stories || [];
+  const stories = MOCK_STORIES;
+  const isLoading = false;
+  const isError = false;
+  const isFetching = false;
+  const refetch = () => {};
 
   // 监听当前可见项
   const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: ViewToken[] }) => {
