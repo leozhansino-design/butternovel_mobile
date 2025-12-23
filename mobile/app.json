@@ -22,7 +22,9 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#f5f1e8"
       },
-      "package": "com.butternovel.app"
+      "package": "com.butternovel.app",
+      "targetSdkVersion": 35,
+      "minSdkVersion": 24
     },
     "web": {
       "bundler": "metro",
