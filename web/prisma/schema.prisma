@@ -1,0 +1,791 @@
+// prisma/schema.prisma
+// 🦋 ButterNovel - Complete Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")  // 用于迁移命令（Session Mode 5432端口）
+}
+
+// ============================================
+// 用户系统
+// ============================================
+
+// 用户表（读者 = 作者）
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  password String?
+
+  // 基础信息（可修改）
+  name   String?
+  avatar String?
+  avatarPublicId  String? // ⭐ 新增字段
+  bio    String? @db.Text
+
+  role String @default("USER")
+
+  // OAuth
+  googleId   String? @unique
+  facebookId String? @unique
+
+  // 作家信息
+  isWriter   Boolean @default(false)
+  writerName String?
+  writerBio  String? @db.Text
+
+  // 账号状态
+  isVerified Boolean @default(false)
+  isActive   Boolean @default(true)
+  isBanned   Boolean @default(false)
+  isOfficial Boolean @default(false) // 官方账号标识
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关系（暂时移除 novels）
+  // novels          Novel[]  // ❌ 注释掉
+  library         Library[]
+  readingHistory  ReadingHistory[]
+  likes           NovelLike[]
+  chapterProgress ChapterProgress[]
+  comments        Comment[]
+  ratings         Rating[]
+  ratingLikes     RatingLike[] // 评分点赞
+  ratingReplies   RatingReply[] // 评分回复
+
+  // 社区功能（后期）
+  forumPosts   ForumPost[]
+  forumReplies ForumReply[]
+  helpedCount  Int         @default(0)
+
+  // 用户等级勋章系统
+  contributionPoints Int @default(0) // 贡献度分数
+  level              Int @default(1) // 当前等级 (1-8)
+  totalReadingTime   Int @default(0) // 总阅读时长（分钟）
+
+  contributionLogs   ContributionLog[]
+  readingSessions    ReadingSession[]
+
+  // Privacy settings
+  libraryPrivacy Boolean @default(false) // false = public (default), true = private (only visible to self)
+
+  // Follow system
+  following Follow[] @relation("UserFollowing")
+  followers Follow[] @relation("UserFollowers")
+
+  // Paragraph comments
+  paragraphComments     ParagraphComment[]
+  paragraphCommentLikes ParagraphCommentLike[]
+
+  // Notification system
+  notifications              Notification[]        @relation("NotificationReceiver")
+  triggeredNotifications     Notification[]        @relation("NotificationActor")
+  notificationPreferences    NotificationPreferences?
+
+  @@index([email])
+  @@index([isWriter])
+  @@index([level, contributionPoints])
+}
+
+// Follow system
+model Follow {
+  id String @id @default(cuid())
+
+  followerId  String
+  follower    User   @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+
+  followingId String
+  following   User   @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, followingId]) // One user can only follow another user once
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// ============================================
+// 内容系统
+// ============================================
+
+// 分类（Genre）
+model Category {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  slug  String  @unique
+  icon  String?
+  order Int     @default(0)
+
+  novels Novel[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+// 小说表
+model Novel {
+  id         Int    @id @default(autoincrement())
+  title      String
+  slug       String @unique
+  coverImage String?  // 普通小说必需，短篇小说可选
+  coverImagePublicId  String? // ⭐ 新增字段
+  blurb      String @db.Text
+
+  // ⭐ 短篇小说标识
+  isShortNovel Boolean @default(false)  // 是否为短篇小说
+  shortNovelGenre String?  // 短篇小说分类 (Age Gap, Billionaire Romance, etc.)
+  readingPreview String? @db.Text  // 短篇小说预览内容 (几百字符)
+
+  // 作者（暂时移除外键）
+  authorId   String
+  // author     User    @relation(fields: [authorId], references: [id])  // ❌ 注释掉
+  authorName String  @default("ButterNovel Official")
+
+  // 分类
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  // 状态
+  status      NovelStatus @default(ONGOING)
+  isPublished Boolean     @default(false)
+  isDraft     Boolean     @default(true)
+
+  // 审核（管理员用）
+  isApproved Boolean @default(true)
+  reviewNote String? @db.Text
+  
+  // ⭐ 添加 Ban 功能字段
+  isBanned    Boolean   @default(false)   // 是否被封禁
+  bannedUntil DateTime?                    // 封禁到期时间（null = 永久封禁）
+  banReason   String?   @db.Text          // 封禁原因
+
+  // 统计
+  totalChapters Int @default(0)
+  wordCount     Int @default(0)
+  viewCount     Int @default(0)
+  likeCount     Int @default(0)
+  commentCount  Int @default(0)
+
+  // 评分统计
+  averageRating Float? // 平均评分 (2.0-10.0)
+  totalRatings  Int    @default(0) // 总评分数
+
+  // 标签（多对多关系）
+  tags Tag[] @relation("NovelTags")
+
+  // 热度分数（用于Hot排序）
+  hotScore Float @default(0)
+
+  // 书签计数（缓存library关系的计数）
+  bookmarkCount Int @default(0)
+
+  // ⭐ 内容分级和版权
+  contentRating ContentRating @default(ALL_AGES)
+  rightsType    RightsType    @default(ALL_RIGHTS_RESERVED)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  // 关系
+  chapters       Chapter[]
+  library        Library[]
+  readingHistory ReadingHistory[]
+  likes          NovelLike[]
+  comments       Comment[]
+  views          NovelView[]
+  ratings        Rating[]
+  
+  @@index([slug])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([isPublished])
+  @@index([isApproved])
+  @@index([isPublished, isBanned, likeCount])
+  @@index([categoryId, isPublished, isBanned])
+  @@index([isShortNovel, isPublished, isBanned])  // 短篇小说查询优化
+  @@index([isShortNovel, shortNovelGenre])  // 短篇小说分类查询
+}
+
+enum NovelStatus {
+  ONGOING // 连载中
+  COMPLETED // 已完结
+}
+
+// 内容分级
+enum ContentRating {
+  ALL_AGES    // 所有年龄
+  TEEN_13     // 青少年 13+
+  MATURE_16   // 成熟内容 16+
+  EXPLICIT_18 // 明确成人内容 18+
+}
+
+// 版权类型
+enum RightsType {
+  ALL_RIGHTS_RESERVED // 保留所有权利
+  CREATIVE_COMMONS    // 创作共用许可
+}
+
+// 章节表
+model Chapter {
+  id            Int     @id @default(autoincrement())
+  novelId       Int
+  novel         Novel   @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  chapterNumber Int
+  title         String
+  slug          String
+  content       String  @db.Text
+  wordCount     Int     @default(0)
+  isPublished   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  readingHistory  ReadingHistory[]
+  chapterProgress ChapterProgress[]
+
+  @@unique([novelId, chapterNumber])
+  @@index([novelId])
+  @@index([novelId, chapterNumber])
+  @@index([novelId, isPublished])
+  @@index([novelId, isPublished, chapterNumber]) 
+}
+
+// ============================================
+// 阅读系统
+// ============================================
+
+// 书架
+model Library {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novelId Int
+  novel   Novel  @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  addedAt DateTime @default(now())
+
+  @@unique([userId, novelId])
+  @@index([userId])
+}
+
+// 阅读历史（记录读到第几章）
+model ReadingHistory {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novelId   Int
+  novel     Novel  @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  chapterId Int
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  lastReadAt DateTime @default(now())
+
+  @@unique([userId, novelId])
+  @@index([userId])
+  @@index([lastReadAt])
+}
+
+// 章节阅读进度
+model ChapterProgress {
+  id             String  @id @default(cuid())
+  userId         String
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapterId      Int
+  chapter        Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  scrollPosition Int     @default(0)
+  percentage     Int     @default(0)
+  isCompleted    Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, chapterId])
+}
+
+// ============================================
+// 互动系统
+// ============================================
+
+// 点赞
+model NovelLike {
+  id        String  @id @default(cuid())
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guestId   String?
+  ipAddress String?
+  novelId   Int
+  novel     Novel   @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, novelId])
+  @@unique([guestId, novelId])
+  @@index([ipAddress, createdAt])
+}
+
+// 评论
+model Comment {
+  id      String @id @default(cuid())
+  content String @db.Text
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  novelId Int
+  novel   Novel  @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  // 审核
+  isApproved Boolean @default(true)
+  isHidden   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([novelId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// 评分
+model Rating {
+  id     String @id @default(cuid())
+  score  Int // 评分：2, 4, 6, 8, 10
+  review String? @db.Text // 评论内容（可选）
+  likeCount Int @default(0) // 点赞数
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  novelId Int
+  novel   Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  likes RatingLike[] // 点赞列表
+  replies RatingReply[] // 回复列表
+
+  @@unique([userId, novelId]) // 每个用户只能评分一次
+  @@index([novelId])
+  @@index([createdAt])
+  @@index([novelId, likeCount, createdAt]) // 用于排序：按点赞数和时间
+}
+
+// 评分点赞
+model RatingLike {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+
+  // 用户（登录用户或游客）
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guestId  String? // 游客标识 (基于IP+UserAgent的hash)
+
+  // 元数据
+  ipAddress String?
+  userAgent String?  @db.Text
+
+  // 评分
+  ratingId String
+  rating   Rating @relation(fields: [ratingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ratingId]) // 登录用户每个评分只能点赞一次
+  @@unique([guestId, ratingId]) // 游客每个评分只能点赞一次
+  @@index([ratingId])
+}
+
+// 评分回复
+model RatingReply {
+  id String @id @default(cuid())
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 用户 (必须登录才能回复)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 评分
+  ratingId String
+  rating   Rating @relation(fields: [ratingId], references: [id], onDelete: Cascade)
+
+  // 嵌套回复支持 (可选 - 如果这是对其他回复的回复)
+  parentReplyId String?
+  parentReply   RatingReply?  @relation("ReplyToReply", fields: [parentReplyId], references: [id], onDelete: Cascade)
+  childReplies  RatingReply[] @relation("ReplyToReply")
+
+  @@index([ratingId, createdAt])
+  @@index([parentReplyId])
+  @@index([userId])
+}
+
+// ============================================
+// 社区系统（后期）
+// ============================================
+
+// 论坛帖子（书荒求助）
+model ForumPost {
+  id      String        @id @default(cuid())
+  title   String
+  content String        @db.Text
+  type    ForumPostType @default(HELP) // HELP=求书, RECOMMEND=推荐
+  userId  String
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 统计
+  viewCount   Int     @default(0)
+  replyCount  Int     @default(0)
+  helpedCount Int     @default(0) // 拯救了多少人
+  isResolved  Boolean @default(false) // 是否解决
+  isClosed    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  replies ForumReply[]
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum ForumPostType {
+  HELP // 求书
+  RECOMMEND // 推荐书单
+  DISCUSSION // 讨论
+}
+
+// 论坛回复
+model ForumReply {
+  id      String @id @default(cuid())
+  content String @db.Text
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId  String
+  post    ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // 推荐的小说（可选）
+  novelId Int?
+
+  // 互动
+  helpfulCount Int @default(0) // 有帮助的票数
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+}
+
+// ============================================
+// 管理系统
+// ============================================
+
+// 管理员
+model Admin {
+  id       String    @id @default(cuid())
+  email    String    @unique
+  password String
+  name     String
+  role     AdminRole @default(MODERATOR)
+  isActive Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+// ⭐ Admin Profile 表（在现有表之后添加）
+model AdminProfile {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String?   // 🔧 SECURITY: 密码hash (bcrypt)
+  displayName String    @default("Admin")
+  bio         String?   @db.Text
+  avatar      String?   @db.Text  // Base64 编码的圆形头像
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email])
+}
+
+// 小说浏览记录
+model NovelView {
+  id        Int      @id @default(autoincrement())
+  novelId   Int
+  novel     Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  
+  // 用户标识 (二选一)
+  userId    String?
+  guestId   String?  // 游客标识 (基于IP+UserAgent的hash)
+  
+  // 元数据
+  ipAddress String?
+  userAgent String?  @db.Text
+  viewedAt  DateTime @default(now())
+  
+  @@index([novelId, userId, viewedAt])
+  @@index([novelId, guestId, viewedAt])
+  @@index([viewedAt])  // 用于定期清理旧数据
+}
+
+
+enum AdminRole {
+  SUPER_ADMIN // 超级管理员
+  ADMIN // 管理员
+  MODERATOR // 内容审核员
+}
+
+// ============================================
+// 用户等级勋章系统
+// ============================================
+
+// 贡献度日志
+model ContributionLog {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  points      Int              // 获得的分数
+  type        ContributionType
+  description String?
+
+  // 关联的资源ID（可选）
+  relatedId String? // Rating/Comment/RatingReply的ID
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type])
+}
+
+enum ContributionType {
+  RATING        // 评分
+  COMMENT       // 评论
+  RATING_REPLY  // 评分回复
+  DAILY_READ    // 每日阅读
+  CHAPTER_READ  // 完成章节阅读
+  OTHER
+}
+
+// 阅读会话（用于统计阅读时长）
+model ReadingSession {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chapterId Int
+  novelId   Int
+
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+  duration  Int       @default(0) // 阅读时长（秒）
+
+  @@index([userId, startTime])
+  @@index([novelId])
+}
+
+// ============================================
+// 段落评论系统
+// ============================================
+
+// 段落评论
+model ParagraphComment {
+  id             String  @id @default(cuid())
+  novelId        Int
+  chapterId      Int
+  paragraphIndex Int     // 段落索引（从0开始）
+  content        String  @db.Text
+  imageUrl       String? // 评论图片URL（可选）
+  imagePublicId  String? // Cloudinary public_id（用于删除）
+
+  // 用户
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 统计
+  likeCount Int @default(0) // 点赞数
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 点赞列表
+  likes ParagraphCommentLike[]
+
+  // 回复列表（自引用关系）
+  replies ParagraphComment[] @relation("CommentReplies")
+
+  // 回复关系（如果这是一个回复）
+  parentId String?
+  parent   ParagraphComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+
+  replyCount Int @default(0) // 回复数
+
+  @@index([novelId, chapterId, paragraphIndex])
+  @@index([chapterId, paragraphIndex])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([parentId])
+}
+
+// 段落评论点赞
+model ParagraphCommentLike {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+
+  // 用户（登录用户或游客）
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guestId  String? // 游客标识 (基于IP+UserAgent的hash)
+
+  // 元数据
+  ipAddress String?
+  userAgent String? @db.Text
+
+  // 评论
+  commentId String
+  comment   ParagraphComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId]) // 登录用户每个评论只能点赞一次
+  @@unique([guestId, commentId]) // 游客每个评论只能点赞一次
+  @@index([commentId])
+}
+
+// ============================================
+// 标签系统
+// ============================================
+
+// 标签表
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique       // 标签名称（小写）
+  slug      String   @unique       // URL slug
+  count     Int      @default(0)   // 使用次数
+  createdAt DateTime @default(now())
+
+  // 关联的小说（多对多）
+  novels Novel[] @relation("NovelTags")
+
+  @@index([slug])
+  @@index([count])  // 用于按热度排序
+}
+
+// ============================================
+// 通知系统
+// ============================================
+
+// 通知类型
+enum NotificationType {
+  // 读者相关（用户身份）
+  RATING_REPLY         // 评分被回复
+  RATING_LIKE          // 评分被点赞
+  COMMENT_REPLY        // 段落评论被回复
+  COMMENT_LIKE         // 段落评论被点赞
+  AUTHOR_NEW_NOVEL     // 关注的作者发布新书
+  AUTHOR_NEW_CHAPTER   // 关注的作者更新章节
+  NOVEL_UPDATE         // 书架小说更新
+
+  // 作者相关（作者身份）
+  NOVEL_RATING         // 你的书被评分
+  NOVEL_COMMENT        // 你的书被评论
+  NEW_FOLLOWER         // 新增粉丝
+
+  // 系统通知
+  SYSTEM_ANNOUNCEMENT  // 系统公告
+  LEVEL_UP             // 用户升级
+}
+
+// 通知优先级
+enum NotificationPriority {
+  HIGH    // 高优先级（回复、点赞）
+  NORMAL  // 普通（关注更新）
+  LOW     // 低优先级（系统公告）
+}
+
+// 通知表
+model Notification {
+  id        String   @id @default(cuid())
+
+  // 接收者
+  userId    String
+  user      User     @relation("NotificationReceiver", fields: [userId], references: [id], onDelete: Cascade)
+
+  // 通知类型和优先级
+  type      NotificationType
+  priority  NotificationPriority @default(NORMAL)
+
+  // 聚合相关
+  isAggregated    Boolean @default(false)  // 是否为聚合通知
+  aggregationKey  String?                  // 聚合键（用于合并同类通知）
+  actorIds        String[]                 // 触发者ID列表（聚合用）
+  actorCount      Int @default(1)          // 触发者数量
+
+  // 单个触发者（非聚合通知）
+  actorId         String?
+  actor           User?    @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  // 关联实体（根据类型不同，关联不同的实体）
+  novelId         Int?
+  chapterId       Int?
+  ratingId        String?
+  commentId       String?
+
+  // 通知内容
+  title           String            // 通知标题
+  content         String?  @db.Text // 通知详细内容（可选）
+  imageUrl        String?           // 通知图片（如书籍封面、用户头像）
+  linkUrl         String?           // 跳转链接
+
+  // 状态
+  isRead          Boolean @default(false)
+  isArchived      Boolean @default(false)
+  readAt          DateTime?
+  archivedAt      DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, isRead, createdAt])        // 查询未读通知
+  @@index([userId, isArchived])               // 查询已归档通知
+  @@index([aggregationKey])                   // 聚合查询
+  @@index([userId, isArchived, createdAt])    // 分页查询
+  @@index([userId, isRead, isArchived])       // 未读计数查询优化（高频轮询）
+}
+
+// 通知偏好设置
+model NotificationPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 邮件通知总开关
+  emailNotifications  Boolean @default(false)
+
+  // 分类开关
+  enableRatingNotifications   Boolean @default(true)   // 评分相关通知
+  enableCommentNotifications  Boolean @default(true)   // 评论相关通知
+  enableFollowNotifications   Boolean @default(true)   // 关注相关通知
+  enableAuthorNotifications   Boolean @default(true)   // 作者相关通知（书籍更新）
+
+  // 邮件通知分类开关
+  emailRatingNotifications    Boolean @default(false)
+  emailCommentNotifications   Boolean @default(false)
+  emailFollowNotifications    Boolean @default(false)
+  emailAuthorNotifications    Boolean @default(false)
+
+  // 聚合设置
+  aggregationEnabled    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

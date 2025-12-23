@@ -1,0 +1,13 @@
+Tags: romance, fantasy
+Title: 测试小说
+Genre: Romance
+Blurb: 这是一个测试小说，用来验证批量上传功能是否正常工作。
+
+Chapter 1: 第一章
+这是第一章的内容。
+
+Chapter 2: 第二章
+这是第二章的内容。
+
+Chapter 3: 第三章
+这是第三章的内容。

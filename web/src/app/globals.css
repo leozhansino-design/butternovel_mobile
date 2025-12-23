@@ -1,0 +1,478 @@
+@import "tailwindcss";
+
+/* 🎨 Tailwind CSS v4 主题配置 - 质感蓝色设计系统 */
+@theme {
+  /* z-index 层级 */
+  --z-45: 45;
+  --z-60: 60;
+  --z-70: 70;
+
+  /* 🎨 品牌色彩 - 基于 ButterNovel Logo 蓝色 (blue-600/700) */
+  --color-brand-primary: #2563eb;    /* Tailwind blue-600 - Logo 主色 */
+  --color-brand-secondary: #3b82f6;  /* Tailwind blue-500 - 明亮辅助色 */
+  --color-brand-accent: #1d4ed8;     /* Tailwind blue-700 - Logo 深色 */
+  --color-brand-light: #dbeafe;      /* Tailwind blue-100 - 淡蓝背景 */
+  --color-brand-subtle: #eff6ff;     /* Tailwind blue-50 - 极淡背景 */
+
+  /* 渐变效果 - 基于 Logo 蓝色渐变 */
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  --gradient-secondary: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  --gradient-light: linear-gradient(180deg, #eff6ff 0%, #FFFFFF 100%);
+  --gradient-page-bg: linear-gradient(180deg, #dbeafe 0%, #f0f9ff 50%, #FFFFFF 100%);
+  --gradient-blue-glow: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(59, 130, 246, 0.03) 100%);
+}
+
+/* 🌐 全局样式 */
+body {
+  background: #FFFFFF;
+  color: #1a1a1a;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
+}
+
+/* ✨ 滚动条样式 - 蓝色主题 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(37, 99, 235, 0.04);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  background-clip: padding-box;
+}
+
+/* 🎭 滚动行为 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 💫 动画效果 - 流畅自然 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0) 0%, rgba(37, 99, 235, 0.06) 50%, rgba(37, 99, 235, 0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* 🎨 玻璃态效果 - Logo 蓝色调 */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  box-shadow:
+    0 1px 3px rgba(37, 99, 235, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+}
+
+.glass-effect-blue {
+  background: rgba(219, 234, 254, 0.65);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow:
+    0 2px 8px rgba(37, 99, 235, 0.08),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+}
+
+.glass-effect-strong {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(36px) saturate(200%);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  box-shadow:
+    0 8px 24px rgba(37, 99, 235, 0.08),
+    0 2px 6px rgba(37, 99, 235, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1);
+}
+
+/* 🌟 卡片阴影 - Pantone 蓝色调 */
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(37, 99, 235, 0.08);
+}
+
+.card-shadow-md {
+  box-shadow:
+    0 2px 4px -1px rgba(37, 99, 235, 0.1),
+    0 4px 8px -1px rgba(37, 99, 235, 0.06);
+}
+
+.card-shadow-lg {
+  box-shadow:
+    0 4px 8px -2px rgba(37, 99, 235, 0.12),
+    0 10px 20px -3px rgba(37, 99, 235, 0.08),
+    0 0 0 1px rgba(37, 99, 235, 0.04);
+}
+
+.card-shadow-xl {
+  box-shadow:
+    0 12px 28px -8px rgba(37, 99, 235, 0.18),
+    0 24px 48px -12px rgba(37, 99, 235, 0.12),
+    0 0 0 1px rgba(37, 99, 235, 0.06);
+}
+
+/* 🔷 按钮样式 - 现代高端设计 */
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow:
+    0 1px 3px rgba(37, 99, 235, 0.12),
+    0 4px 12px rgba(37, 99, 235, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  box-shadow:
+    0 4px 12px rgba(37, 99, 235, 0.2),
+    0 8px 24px rgba(37, 99, 235, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 2px rgba(37, 99, 235, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #2563eb;
+  border: 1.5px solid #dbeafe;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-ghost:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #dbeafe;
+}
+
+/* 🎯 焦点样式 - Pantone 蓝色光圈 */
+.focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.focus-ring-inset {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+/* 📝 输入框样式 */
+.input-primary {
+  background: #ffffff;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  transition: all 0.25s ease;
+}
+
+.input-primary:hover {
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.input-primary:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* 🌈 渐变背景 */
+.bg-gradient-blue-subtle {
+  background: linear-gradient(180deg, #eff6ff 0%, #FFFFFF 100%);
+}
+
+.bg-gradient-blue-card {
+  background: linear-gradient(135deg,
+    rgba(231, 238, 245, 0.5) 0%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+}
+
+.bg-gradient-blue-vibrant {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+/* 📱 分隔线 - Pantone 蓝色调 */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(37, 99, 235, 0.12) 20%,
+    rgba(37, 99, 235, 0.12) 80%,
+    transparent 100%
+  );
+}
+
+.divider-vertical {
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(37, 99, 235, 0.12) 20%,
+    rgba(37, 99, 235, 0.12) 80%,
+    transparent 100%
+  );
+}
+
+/* 🎭 Hover 效果 */
+.hover-lift {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.14);
+}
+
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 24px rgba(37, 99, 235, 0.28);
+}
+
+/* 💎 文字样式 */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-gradient-blue {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 🔲 容器样式 */
+.container-narrow {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container-reading {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 🎨 背景模糊效果 */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.backdrop-blur-xl {
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+}
+
+/* 🌟 蓝色光效 */
+.blue-glow {
+  position: relative;
+}
+
+.blue-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  filter: blur(10px);
+}
+
+.blue-glow:hover::before {
+  opacity: 0.4;
+}
+
+/* 📐 间距系统增强 */
+.space-y-tight > * + * {
+  margin-top: 0.5rem;
+}
+
+.space-y-comfortable > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-y-relaxed > * + * {
+  margin-top: 2.5rem;
+}
+
+/* 📚 伪3D书籍阴影效果 - 参考 PlanetEbook 设计 */
+.book-shadow-3d {
+  position: relative;
+  z-index: 1;
+}
+
+.book-shadow-3d::before,
+.book-shadow-3d::after {
+  content: '';
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  width: 88%;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+  z-index: -1;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.book-shadow-3d::before {
+  left: 3%;
+  transform: rotate(-4deg);
+}
+
+.book-shadow-3d::after {
+  right: 3%;
+  transform: rotate(4deg);
+}
+
+.book-shadow-3d:hover::before {
+  transform: rotate(-5deg);
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.45);
+}
+
+.book-shadow-3d:hover::after {
+  transform: rotate(5deg);
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* 🎠 横向滚动样式 - 用于首页分类轮播 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,28 @@
+由于检测到数据库drift，Follow系统部署步骤：
+
+1. 使用 db push 添加 Follow 表（不会删除现有数据）：
+   npx prisma db push
+
+2. 生成 Prisma Client：
+   npx prisma generate
+
+3. 重启开发服务器：
+   npm run dev
+
+4. 验证 Follow 表已创建：
+   - 登录两个不同的用户账号
+   - 在一个账号访问另一个用户的profile页面
+   - 点击 Follow 按钮
+   - 查看 Followers/Following 数量是否增加
+
+注意：
+- db push 会直接同步schema到数据库，不会删除现有数据
+- 如果遇到错误，检查 .env 文件中的 DATABASE_URL
+- Follow 表会自动创建，包含所有索引和关系
+
+测试清单：
+□ Follow/Unfollow 按钮工作正常
+□ Followers 数量实时更新
+□ 点击 Following/Followers 显示列表
+□ 从列表点击用户可以跳转到他们的profile
+□ Library Modal 中的 Following/Followers 也可点击

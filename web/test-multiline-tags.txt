@@ -1,0 +1,22 @@
+Tags: romance, fantasy, mystery, adventure, magic, school-life, friendship,
+      comedy, drama, slice-of-life, supernatural, coming-of-age
+Title: 多行标签测试小说
+Genre: Fantasy
+Blurb: 这是一个测试小说，用来验证批量上传功能是否能正确处理多行标签的情况。
+       当标签太多时，它们会跨越多行。
+       这个简介也是多行的。
+
+Chapter 1: 初遇魔法
+这是第一章的内容。主角发现了魔法的存在。
+
+这一章有多个段落。
+
+Chapter 2: 魔法学院
+主角进入了魔法学院，开始了新的冒险。
+
+学院里有各种各样的魔法课程。
+
+Chapter 3: 友谊的力量
+主角结识了新朋友，一起面对挑战。
+
+友谊让他们变得更强大。
