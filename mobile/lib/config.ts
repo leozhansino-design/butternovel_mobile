@@ -1,14 +1,9 @@
 /**
  * 移动端配置
- *
- * 开发时：使用本地 web 服务 http://localhost:3000
- * 生产时：使用线上域名
  */
 
-// TODO: 替换为你的实际域名
-export const API_BASE_URL = __DEV__
-  ? 'http://192.168.1.3:3000'  // 本地开发时使用电脑 IP
-  : 'https://butternovel.com'  // 生产环境域名
+// API 地址
+export const API_BASE_URL = 'https://butternovel.com';
 
 export const API_ENDPOINTS = {
   // 短篇小说
