@@ -3,8 +3,77 @@
 > **快速参考**: 每次开发前必读
 
 **最后更新**: 2025-12-23
-**当前阶段**: 手机版 App 开发
+**当前阶段**: Phase 1 完成 → Phase 2 开始
 **目标平台**: Google Play + App Store
+
+---
+
+## 🚀 当前进度
+
+### ✅ 已完成 - Phase 1: 项目搭建
+
+| 任务 | 状态 | 备注 |
+|------|------|------|
+| 创建 Expo SDK 54 项目 | ✅ | React Native 0.81.5, React 19.1.0 |
+| 配置 NativeWind | ✅ | Tailwind CSS 样式 |
+| 配置 Expo Router | ✅ | v6.0.0 |
+| 搭建 5 Tab 导航 | ✅ | For You / Following / Create / Bookshelf / Profile |
+| 封装 API 客户端 | ✅ | lib/api/client.ts |
+| 复制工具函数 | ✅ | lib/utils/format.ts |
+| 认证状态管理 | ✅ | stores/authStore.ts (基础版) |
+| 创建基础页面 | ✅ | 全部使用 mock 数据 |
+| Android targetSdkVersion | ✅ | 35 (符合 Google Play 2025 要求) |
+| Expo Go 测试 | ✅ | 可以运行 |
+
+### 📍 下一步 - Phase 2: 认证系统
+
+| 任务 | 优先级 | 说明 |
+|------|--------|------|
+| 完善 authStore | 高 | 添加真实 API 调用 |
+| Token 持久化 | 高 | SecureStore 存储 |
+| 邮箱登录/注册 | 高 | 连接后端 API |
+| Google 登录 | 高 | expo-auth-session |
+| Apple 登录 | 高 | iOS 上架必须 |
+| 游客模式限制 | 中 | 未登录用户限制 |
+
+### 🗂️ 项目结构
+
+```
+mobile/
+├── app/
+│   ├── _layout.tsx          # 根布局 (QueryClient)
+│   ├── (tabs)/
+│   │   ├── _layout.tsx      # Tab 导航
+│   │   ├── index.tsx        # For You 推荐
+│   │   ├── following.tsx    # 关注动态
+│   │   ├── create.tsx       # 创作中心
+│   │   ├── bookshelf.tsx    # 书架
+│   │   └── profile.tsx      # 个人中心
+│   ├── auth/
+│   │   └── login.tsx        # 登录页
+│   └── reader/
+│       └── [id].tsx         # 阅读器
+├── lib/
+│   ├── api/client.ts        # API 客户端
+│   └── utils/format.ts      # 工具函数
+├── stores/
+│   └── authStore.ts         # 认证状态
+├── package.json             # SDK 54 依赖
+└── app.json                 # Expo 配置
+```
+
+### ⚠️ 待修复警告
+
+运行时显示这些包版本不匹配，但不影响基本功能：
+
+```
+expo-image, expo-splash-screen, expo-status-bar
+react-native-gesture-handler, react-native-reanimated
+react-native-safe-area-context, react-native-screens
+react-native-svg, react-native-web, react-native-worklets
+```
+
+可以用 `npx expo install --fix` 修复，或暂时忽略。
 
 ---
 
