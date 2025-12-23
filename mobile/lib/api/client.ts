@@ -1,7 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-
-// TODO: 替换为你的实际 API 地址
-const API_BASE = 'https://your-api-domain.com/api';
+import { API_BASE_URL, API_ENDPOINTS, APP_CONFIG } from '../config';
 
 class ApiClient {
   private token: string | null = null;
@@ -24,20 +22,30 @@ class ApiClient {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
     }
 
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        await this.clearToken();
-        throw new Error('AUTH_EXPIRED');
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.clearToken();
+          throw new Error('AUTH_EXPIRED');
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API Error: ${response.status}`);
       }
-      throw new Error(`API Error: ${response.status}`);
-    }
 
-    return response.json();
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('Network')) {
+        throw new Error('NETWORK_ERROR');
+      }
+      throw error;
+    }
   }
 
   get<T>(endpoint: string) {
@@ -78,3 +86,51 @@ class ApiClient {
 }
 
 export const api = new ApiClient();
+
+// 导出类型
+export interface Story {
+  id: string;
+  title: string;
+  slug: string;
+  blurb: string;
+  readingPreview?: string | null;
+  category: string;
+  wordCount: number;
+  readCount: number;
+  likeCount: number;
+  commentCount: number;
+  averageRating: number | null;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+  content?: string;
+}
+
+export interface StoriesResponse {
+  stories: Story[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+// 便捷方法
+export const shortsApi = {
+  getList: (page = 1, limit = APP_CONFIG.DEFAULT_PAGE_SIZE, genre?: string) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (genre) params.append('genre', genre);
+    return api.get<StoriesResponse>(`${API_ENDPOINTS.SHORTS_LIST}?${params}`);
+  },
+
+  getDetail: (id: string) => {
+    return api.get<Story>(API_ENDPOINTS.SHORTS_DETAIL(id));
+  },
+
+  like: (id: string) => {
+    return api.post(`/api/shorts/${id}/recommend`, {});
+  },
+};
