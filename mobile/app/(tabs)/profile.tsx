@@ -18,7 +18,7 @@ export default function ProfileScreen() {
         </Text>
         <Pressable
           onPress={() => router.push('/auth/login')}
-          className="bg-butter-500 px-8 py-3 rounded-full"
+          className="bg-brand-500 px-8 py-3 rounded-full"
         >
           <Text className="text-white font-semibold">Sign In</Text>
         </Pressable>
@@ -37,8 +37,8 @@ export default function ProfileScreen() {
         {/* 用户信息 */}
         <View className="bg-white px-4 py-6 mb-2">
           <View className="flex-row items-center">
-            <View className="w-20 h-20 bg-butter-100 rounded-full items-center justify-center">
-              <Text className="text-butter-600 text-3xl font-bold">
+            <View className="w-20 h-20 bg-brand-100 rounded-full items-center justify-center">
+              <Text className="text-brand-600 text-3xl font-bold">
                 {user?.name?.charAt(0) || 'U'}
               </Text>
             </View>
@@ -48,7 +48,7 @@ export default function ProfileScreen() {
               </Text>
               <Text className="text-gray-400">{user?.email}</Text>
               <Pressable className="mt-2">
-                <Text className="text-butter-600 font-medium">Edit Profile</Text>
+                <Text className="text-brand-600 font-medium">Edit Profile</Text>
               </Pressable>
             </View>
           </View>
@@ -59,28 +59,28 @@ export default function ProfileScreen() {
           <View className="flex-row justify-around">
             <View className="items-center">
               <View className="flex-row items-center">
-                <Ionicons name="book" size={18} color="#eab308" />
+                <Ionicons name="book" size={18} color="#3b82f6" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">12</Text>
               </View>
               <Text className="text-gray-400 text-sm">Read</Text>
             </View>
             <View className="items-center">
               <View className="flex-row items-center">
-                <Ionicons name="create-outline" size={18} color="#eab308" />
+                <Ionicons name="create-outline" size={18} color="#3b82f6" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">3</Text>
               </View>
               <Text className="text-gray-400 text-sm">Written</Text>
             </View>
             <View className="items-center">
               <View className="flex-row items-center">
-                <Ionicons name="heart" size={18} color="#eab308" />
+                <Ionicons name="heart" size={18} color="#3b82f6" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">156</Text>
               </View>
               <Text className="text-gray-400 text-sm">Likes</Text>
             </View>
             <View className="items-center">
               <View className="flex-row items-center">
-                <Ionicons name="people" size={18} color="#eab308" />
+                <Ionicons name="people" size={18} color="#3b82f6" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">24</Text>
               </View>
               <Text className="text-gray-400 text-sm">Followers</Text>

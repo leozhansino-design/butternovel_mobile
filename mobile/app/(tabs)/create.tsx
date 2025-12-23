@@ -40,7 +40,7 @@ export default function CreateScreen() {
         </Text>
         <Pressable
           onPress={() => router.push('/auth/login')}
-          className="bg-butter-500 px-8 py-3 rounded-full"
+          className="bg-brand-500 px-8 py-3 rounded-full"
         >
           <Text className="text-white font-semibold">Sign In</Text>
         </Pressable>
@@ -58,7 +58,7 @@ export default function CreateScreen() {
       {/* 创建按钮 */}
       <Pressable
         onPress={() => router.push('/create/new')}
-        className="mx-4 mt-4 flex-row items-center justify-center p-4 bg-butter-500 rounded-xl"
+        className="mx-4 mt-4 flex-row items-center justify-center p-4 bg-brand-500 rounded-xl"
       >
         <Ionicons name="add" size={24} color="#fff" />
         <Text className="ml-2 text-white font-semibold text-lg">

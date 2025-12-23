@@ -1,191 +1,344 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   FlatList,
   Dimensions,
-  RefreshControl,
-  ActivityIndicator,
   Pressable,
+  ActivityIndicator,
+  ViewToken,
+  StatusBar,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { formatNumber } from '@/lib/utils/format';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const CARD_HEIGHT = SCREEN_HEIGHT - 140; // 减去 Tab 栏和状态栏高度
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const TAB_BAR_HEIGHT = 60;
+const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 44;
+const ITEM_HEIGHT = SCREEN_HEIGHT - TAB_BAR_HEIGHT;
 
-// 模拟数据（后续替换为 API）
-const MOCK_STORIES = [
-  {
-    id: 1,
-    title: 'The CEO\'s Secret Love',
-    blurb: 'She thought she was just a temp, but when the mysterious CEO starts paying attention to her, everything changes...',
-    authorName: 'Romance Writer',
-    likeCount: 12500,
-    commentCount: 342,
-    averageRating: 4.5,
-    wordCount: 18000,
-  },
-  {
-    id: 2,
-    title: 'Reborn: The Revenge Begins',
-    blurb: 'After being betrayed by her best friend and fiancé, she wakes up five years in the past. This time, she won\'t make the same mistakes...',
-    authorName: 'Destiny Author',
-    likeCount: 8900,
-    commentCount: 567,
-    averageRating: 4.8,
-    wordCount: 22000,
-  },
-  {
-    id: 3,
-    title: 'The Hidden Billionaire',
-    blurb: 'Everyone laughed at him for being poor. Little did they know, he was the heir to the largest fortune in the country...',
-    authorName: 'Mystery Pen',
-    likeCount: 25000,
-    commentCount: 1200,
-    averageRating: 4.6,
-    wordCount: 15000,
-  },
-];
-
+// 故事类型定义
 interface Story {
-  id: number;
+  id: string;
   title: string;
   blurb: string;
+  authorId: string;
   authorName: string;
+  coverImage?: string;
   likeCount: number;
   commentCount: number;
-  averageRating: number;
+  readCount: number;
   wordCount: number;
+  category: string;
+  createdAt: string;
 }
 
-function StoryCard({ story }: { story: Story }) {
-  const router = useRouter();
-  const readTime = Math.ceil(story.wordCount / 1000); // 粗略估算阅读时间
+interface StoriesResponse {
+  stories: Story[];
+  nextCursor?: string;
+}
+
+// 右侧操作按钮组件
+function ActionButtons({ story, onLike, onComment, onBookmark, onShare }: {
+  story: Story;
+  onLike: () => void;
+  onComment: () => void;
+  onBookmark: () => void;
+  onShare: () => void;
+}) {
+  const [liked, setLiked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const handleLike = () => {
+    setLiked(!liked);
+    onLike();
+  };
+
+  const handleBookmark = () => {
+    setBookmarked(!bookmarked);
+    onBookmark();
+  };
 
   return (
-    <Pressable
-      onPress={() => router.push(`/reader/${story.id}`)}
-      style={{ height: CARD_HEIGHT }}
-      className="bg-white mx-4 my-2 rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-    >
-      {/* 内容区域 */}
-      <View className="flex-1 p-6 justify-between">
-        {/* 顶部：分类标签 */}
-        <View className="flex-row">
-          <View className="bg-butter-100 px-3 py-1 rounded-full">
-            <Text className="text-butter-700 text-xs font-medium">Romance</Text>
-          </View>
+    <View className="absolute right-4 bottom-32 items-center space-y-6">
+      {/* 点赞 */}
+      <Pressable onPress={handleLike} className="items-center">
+        <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center">
+          <Ionicons
+            name={liked ? "heart" : "heart-outline"}
+            size={28}
+            color={liked ? "#ef4444" : "#fff"}
+          />
         </View>
+        <Text className="text-white text-xs mt-1 font-medium">
+          {formatNumber(story.likeCount + (liked ? 1 : 0))}
+        </Text>
+      </Pressable>
 
-        {/* 中间：标题和简介 */}
-        <View className="flex-1 justify-center py-6">
-          <Text className="text-2xl font-bold text-gray-900 mb-4">
+      {/* 评论 */}
+      <Pressable onPress={onComment} className="items-center">
+        <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center">
+          <Ionicons name="chatbubble-outline" size={26} color="#fff" />
+        </View>
+        <Text className="text-white text-xs mt-1 font-medium">
+          {formatNumber(story.commentCount)}
+        </Text>
+      </Pressable>
+
+      {/* 收藏 */}
+      <Pressable onPress={handleBookmark} className="items-center">
+        <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center">
+          <Ionicons
+            name={bookmarked ? "bookmark" : "bookmark-outline"}
+            size={26}
+            color={bookmarked ? "#3b82f6" : "#fff"}
+          />
+        </View>
+        <Text className="text-white text-xs mt-1 font-medium">
+          {bookmarked ? "Saved" : "Save"}
+        </Text>
+      </Pressable>
+
+      {/* 分享 */}
+      <Pressable onPress={onShare} className="items-center">
+        <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center">
+          <Ionicons name="share-social-outline" size={26} color="#fff" />
+        </View>
+        <Text className="text-white text-xs mt-1 font-medium">Share</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+// 全屏故事卡片组件
+function FullScreenStoryCard({ story, isActive }: { story: Story; isActive: boolean }) {
+  const router = useRouter();
+  const readTime = Math.ceil(story.wordCount / 1000);
+
+  const handlePress = () => {
+    router.push(`/reader/${story.id}`);
+  };
+
+  const handleLike = async () => {
+    try {
+      await api.post(`/stories/${story.id}/like`, {});
+    } catch (error) {
+      console.error('Like failed:', error);
+    }
+  };
+
+  const handleComment = () => {
+    router.push(`/story/${story.id}/comments`);
+  };
+
+  const handleBookmark = async () => {
+    try {
+      await api.post(`/bookshelf/add`, { storyId: story.id });
+    } catch (error) {
+      console.error('Bookmark failed:', error);
+    }
+  };
+
+  const handleShare = () => {
+    // TODO: 实现分享功能
+  };
+
+  return (
+    <Pressable onPress={handlePress} style={{ height: ITEM_HEIGHT, width: SCREEN_WIDTH }}>
+      {/* 背景渐变 */}
+      <LinearGradient
+        colors={['#1e3a8a', '#3b82f6', '#0f172a']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ flex: 1 }}
+      >
+        {/* 内容区域 */}
+        <View className="flex-1 justify-end pb-8 px-4">
+          {/* 分类标签 */}
+          <View className="flex-row mb-4">
+            <BlurView intensity={40} tint="light" className="px-3 py-1 rounded-full overflow-hidden">
+              <Text className="text-white text-xs font-medium">{story.category}</Text>
+            </BlurView>
+          </View>
+
+          {/* 标题 */}
+          <Text className="text-white text-2xl font-bold mb-3" numberOfLines={2}>
             {story.title}
           </Text>
-          <Text className="text-gray-600 text-base leading-6" numberOfLines={4}>
+
+          {/* 简介 */}
+          <Text className="text-white/80 text-base leading-6 mb-6" numberOfLines={4}>
             {story.blurb}
           </Text>
-        </View>
 
-        {/* 底部：作者和统计 */}
-        <View>
-          {/* 作者 */}
-          <View className="flex-row items-center mb-4">
-            <View className="w-10 h-10 bg-gray-200 rounded-full items-center justify-center">
-              <Text className="text-gray-500 font-semibold">
-                {story.authorName.charAt(0)}
+          {/* 作者信息 */}
+          <View className="flex-row items-center mb-6">
+            <View className="w-10 h-10 bg-white/30 rounded-full items-center justify-center">
+              <Text className="text-white font-semibold">
+                {story.authorName.charAt(0).toUpperCase()}
               </Text>
             </View>
-            <View className="ml-3">
-              <Text className="text-gray-900 font-medium">{story.authorName}</Text>
-              <Text className="text-gray-400 text-sm">{readTime} min read</Text>
+            <View className="ml-3 flex-1">
+              <Text className="text-white font-medium">{story.authorName}</Text>
+              <Text className="text-white/60 text-sm">
+                {readTime} min read · {formatNumber(story.readCount)} reads
+              </Text>
             </View>
           </View>
 
-          {/* 统计和操作 */}
-          <View className="flex-row items-center justify-between pt-4 border-t border-gray-100">
-            <View className="flex-row items-center">
-              <Text className="text-yellow-500 font-semibold mr-1">★ {story.averageRating}</Text>
-            </View>
-            <View className="flex-row items-center space-x-6">
-              <Pressable className="flex-row items-center">
-                <Ionicons name="heart" size={20} color="#9ca3af" />
-                <Text className="text-gray-500 ml-1">{formatNumber(story.likeCount)}</Text>
-              </Pressable>
-              <Pressable className="flex-row items-center">
-                <Ionicons name="chatbubble-outline" size={20} color="#9ca3af" />
-                <Text className="text-gray-500 ml-1">{formatNumber(story.commentCount)}</Text>
-              </Pressable>
-              <Pressable>
-                <Ionicons name="bookmark" size={20} color="#9ca3af" />
-              </Pressable>
-              <Pressable>
-                <Ionicons name="share-social" size={20} color="#9ca3af" />
-              </Pressable>
-            </View>
-          </View>
+          {/* 开始阅读按钮 */}
+          <BlurView intensity={60} tint="light" className="rounded-xl overflow-hidden">
+            <Pressable
+              onPress={handlePress}
+              className="py-4 items-center"
+            >
+              <Text className="text-white font-semibold text-lg">Start Reading</Text>
+            </Pressable>
+          </BlurView>
         </View>
-      </View>
+
+        {/* 右侧操作按钮 */}
+        <ActionButtons
+          story={story}
+          onLike={handleLike}
+          onComment={handleComment}
+          onBookmark={handleBookmark}
+          onShare={handleShare}
+        />
+      </LinearGradient>
     </Pressable>
   );
 }
 
 export default function ForYouScreen() {
-  const [refreshing, setRefreshing] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
+  const flatListRef = useRef<FlatList>(null);
 
-  // 暂时使用模拟数据
-  const stories = MOCK_STORIES;
-  const isLoading = false;
+  // 从 API 获取故事列表
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<StoriesResponse>({
+    queryKey: ['stories', 'for-you'],
+    queryFn: () => api.get<StoriesResponse>('/stories/feed'),
+    staleTime: 1000 * 60 * 5, // 5分钟缓存
+  });
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    // 模拟刷新
-    setTimeout(() => setRefreshing(false), 1000);
+  const stories = data?.stories || [];
+
+  // 监听当前可见项
+  const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    if (viewableItems.length > 0 && viewableItems[0].index !== null) {
+      setActiveIndex(viewableItems[0].index);
+    }
   }, []);
 
-  return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      {/* 顶部搜索栏 */}
-      <View className="px-4 py-3 bg-white border-b border-gray-100">
+  const viewabilityConfig = {
+    itemVisiblePercentThreshold: 50,
+  };
+
+  // 渲染空状态
+  const renderEmptyState = () => (
+    <View className="flex-1 items-center justify-center bg-slate-900" style={{ height: ITEM_HEIGHT }}>
+      <Ionicons name="book-outline" size={64} color="#64748b" />
+      <Text className="text-slate-400 text-lg mt-4">No stories yet</Text>
+      <Text className="text-slate-500 text-sm mt-2">Check back later for new content</Text>
+      <Pressable
+        onPress={() => refetch()}
+        className="mt-6 px-6 py-3 bg-brand-500 rounded-full"
+      >
+        <Text className="text-white font-medium">Refresh</Text>
+      </Pressable>
+    </View>
+  );
+
+  // 渲染加载状态
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-slate-900">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="text-slate-400 mt-4">Loading stories...</Text>
+      </View>
+    );
+  }
+
+  // 渲染错误状态
+  if (isError) {
+    return (
+      <View className="flex-1 items-center justify-center bg-slate-900">
+        <Ionicons name="cloud-offline-outline" size={64} color="#64748b" />
+        <Text className="text-slate-400 text-lg mt-4">Failed to load stories</Text>
         <Pressable
-          onPress={() => router.push('/search')}
-          className="flex-row items-center bg-gray-100 rounded-full px-4 py-3"
+          onPress={() => refetch()}
+          className="mt-6 px-6 py-3 bg-brand-500 rounded-full"
         >
-          <Ionicons name="search" size={20} color="#9ca3af" />
-          <Text className="text-gray-400 ml-2">Search stories...</Text>
+          <Text className="text-white font-medium">Try Again</Text>
         </Pressable>
       </View>
+    );
+  }
 
-      {/* 故事列表 */}
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#eab308" />
-        </View>
-      ) : (
-        <FlatList
-          data={stories}
-          renderItem={({ item }) => <StoryCard story={item} />}
-          keyExtractor={(item) => item.id.toString()}
-          pagingEnabled
-          snapToInterval={CARD_HEIGHT + 16}
-          decelerationRate="fast"
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#eab308"
+  return (
+    <View className="flex-1 bg-slate-900">
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+
+      {/* 顶部搜索栏 - 使用毛玻璃效果 */}
+      <View className="absolute top-0 left-0 right-0 z-10" style={{ paddingTop: STATUS_BAR_HEIGHT }}>
+        <BlurView intensity={50} tint="dark" className="mx-4 my-3 rounded-full overflow-hidden">
+          <Pressable
+            onPress={() => router.push('/search')}
+            className="flex-row items-center px-4 py-3"
+          >
+            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" />
+            <Text className="text-white/60 ml-2">Search stories...</Text>
+          </Pressable>
+        </BlurView>
+      </View>
+
+      {/* TikTok 风格全屏滚动列表 */}
+      <FlatList
+        ref={flatListRef}
+        data={stories}
+        renderItem={({ item, index }) => (
+          <FullScreenStoryCard story={item} isActive={index === activeIndex} />
+        )}
+        keyExtractor={(item) => item.id}
+        pagingEnabled
+        snapToInterval={ITEM_HEIGHT}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        showsVerticalScrollIndicator={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        getItemLayout={(_, index) => ({
+          length: ITEM_HEIGHT,
+          offset: ITEM_HEIGHT * index,
+          index,
+        })}
+        ListEmptyComponent={renderEmptyState}
+        onRefresh={refetch}
+        refreshing={isFetching}
+      />
+
+      {/* 页面指示器 */}
+      {stories.length > 1 && (
+        <View className="absolute right-2 top-1/2 -translate-y-1/2 space-y-1">
+          {stories.slice(0, 5).map((_, index) => (
+            <View
+              key={index}
+              className={`w-1 h-4 rounded-full ${
+                index === activeIndex ? 'bg-brand-500' : 'bg-white/30'
+              }`}
             />
-          }
-          contentContainerStyle={{ paddingVertical: 8 }}
-        />
+          ))}
+          {stories.length > 5 && (
+            <Text className="text-white/50 text-xs">+{stories.length - 5}</Text>
+          )}
+        </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }

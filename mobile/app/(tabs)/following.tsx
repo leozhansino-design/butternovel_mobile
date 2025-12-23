@@ -36,7 +36,7 @@ export default function FollowingScreen() {
         </Text>
         <Pressable
           onPress={() => router.push('/auth/login')}
-          className="bg-butter-500 px-8 py-3 rounded-full"
+          className="bg-brand-500 px-8 py-3 rounded-full"
         >
           <Text className="text-white font-semibold">Sign In</Text>
         </Pressable>
@@ -71,8 +71,8 @@ export default function FollowingScreen() {
             </View>
             <Text className="text-gray-900 font-medium mb-1">{item.storyTitle}</Text>
             <View className="flex-row items-center">
-              <View className="bg-butter-100 px-2 py-0.5 rounded">
-                <Text className="text-butter-700 text-xs">{item.genre}</Text>
+              <View className="bg-brand-100 px-2 py-0.5 rounded">
+                <Text className="text-brand-700 text-xs">{item.genre}</Text>
               </View>
               <Text className="text-gray-400 text-sm ml-2">
                 {Math.ceil(item.wordCount / 1000)} min read

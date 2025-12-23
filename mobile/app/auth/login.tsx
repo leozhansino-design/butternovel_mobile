@@ -58,7 +58,7 @@ export default function LoginScreen() {
         <View className="flex-1 px-6 justify-center">
           {/* Logo/标题 */}
           <View className="items-center mb-10">
-            <Text className="text-4xl font-bold text-butter-600 mb-2">
+            <Text className="text-4xl font-bold text-brand-600 mb-2">
               ButterNovel
             </Text>
             <Text className="text-gray-500">Welcome back!</Text>
@@ -114,7 +114,7 @@ export default function LoginScreen() {
             onPress={handleLogin}
             disabled={isLoading}
             className={`py-4 rounded-xl items-center ${
-              isLoading ? 'bg-butter-300' : 'bg-butter-500'
+              isLoading ? 'bg-brand-300' : 'bg-brand-500'
             }`}
           >
             {isLoading ? (
@@ -128,7 +128,7 @@ export default function LoginScreen() {
           <View className="flex-row justify-center mt-6">
             <Text className="text-gray-500">Don't have an account? </Text>
             <Pressable onPress={() => router.push('/auth/register')}>
-              <Text className="text-butter-600 font-medium">Sign Up</Text>
+              <Text className="text-brand-600 font-medium">Sign Up</Text>
             </Pressable>
           </View>
 

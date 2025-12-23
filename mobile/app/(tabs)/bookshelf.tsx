@@ -49,7 +49,7 @@ export default function BookshelfScreen() {
         </Text>
         <Pressable
           onPress={() => router.push('/auth/login')}
-          className="bg-butter-500 px-8 py-3 rounded-full"
+          className="bg-brand-500 px-8 py-3 rounded-full"
         >
           <Text className="text-white font-semibold">Sign In</Text>
         </Pressable>
@@ -71,17 +71,17 @@ export default function BookshelfScreen() {
         <Pressable
           onPress={() => setActiveTab('favorites')}
           className={`flex-row items-center mr-6 pb-2 ${
-            activeTab === 'favorites' ? 'border-b-2 border-butter-500' : ''
+            activeTab === 'favorites' ? 'border-b-2 border-brand-500' : ''
           }`}
         >
           <Ionicons
             name="bookmark"
             size={18}
-            color={activeTab === 'favorites' ? '#eab308' : '#9ca3af'}
+            color={activeTab === 'favorites' ? '#3b82f6' : '#9ca3af'}
           />
           <Text
             className={`ml-1 font-medium ${
-              activeTab === 'favorites' ? 'text-butter-600' : 'text-gray-400'
+              activeTab === 'favorites' ? 'text-brand-600' : 'text-gray-400'
             }`}
           >
             Favorites
@@ -90,17 +90,17 @@ export default function BookshelfScreen() {
         <Pressable
           onPress={() => setActiveTab('history')}
           className={`flex-row items-center pb-2 ${
-            activeTab === 'history' ? 'border-b-2 border-butter-500' : ''
+            activeTab === 'history' ? 'border-b-2 border-brand-500' : ''
           }`}
         >
           <Ionicons
             name="time"
             size={18}
-            color={activeTab === 'history' ? '#eab308' : '#9ca3af'}
+            color={activeTab === 'history' ? '#3b82f6' : '#9ca3af'}
           />
           <Text
             className={`ml-1 font-medium ${
-              activeTab === 'history' ? 'text-butter-600' : 'text-gray-400'
+              activeTab === 'history' ? 'text-brand-600' : 'text-gray-400'
             }`}
           >
             History
@@ -130,7 +130,7 @@ export default function BookshelfScreen() {
                 {/* 进度条 */}
                 <View className="flex-1 h-1.5 bg-gray-200 rounded-full mr-3">
                   <View
-                    className="h-full bg-butter-500 rounded-full"
+                    className="h-full bg-brand-500 rounded-full"
                     style={{ width: `${item.progress}%` }}
                   />
                 </View>

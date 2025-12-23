@@ -190,19 +190,19 @@ export default function ReaderScreen() {
                 <Pressable
                   onPress={() => setBgColor('white')}
                   className={`w-10 h-10 bg-white rounded-full ${
-                    bgColor === 'white' ? 'border-2 border-butter-500' : ''
+                    bgColor === 'white' ? 'border-2 border-brand-500' : ''
                   }`}
                 />
                 <Pressable
                   onPress={() => setBgColor('cream')}
                   className={`w-10 h-10 bg-amber-100 rounded-full ${
-                    bgColor === 'cream' ? 'border-2 border-butter-500' : ''
+                    bgColor === 'cream' ? 'border-2 border-brand-500' : ''
                   }`}
                 />
                 <Pressable
                   onPress={() => setBgColor('dark')}
                   className={`w-10 h-10 bg-gray-800 rounded-full ${
-                    bgColor === 'dark' ? 'border-2 border-butter-500' : ''
+                    bgColor === 'dark' ? 'border-2 border-brand-500' : ''
                   }`}
                 />
               </View>
