@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Plus, Edit3, Eye, Heart } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 import { formatNumber } from '@/lib/utils/format';
 
@@ -60,7 +60,7 @@ export default function CreateScreen() {
         onPress={() => router.push('/create/new')}
         className="mx-4 mt-4 flex-row items-center justify-center p-4 bg-butter-500 rounded-xl"
       >
-        <Plus size={24} color="#fff" />
+        <Ionicons name="add" size={24} color="#fff" />
         <Text className="ml-2 text-white font-semibold text-lg">
           Create New Story
         </Text>
@@ -78,7 +78,7 @@ export default function CreateScreen() {
           >
             {/* 封面占位 */}
             <View className="w-16 h-20 bg-gray-200 rounded-lg items-center justify-center">
-              <Edit3 size={24} color="#9ca3af" />
+              <Ionicons name="create-outline" size={24} color="#9ca3af" />
             </View>
 
             <View className="flex-1 ml-4">
@@ -104,11 +104,11 @@ export default function CreateScreen() {
               </Text>
 
               <View className="flex-row items-center mt-2">
-                <Eye size={14} color="#9ca3af" />
+                <Ionicons name="eye" size={14} color="#9ca3af" />
                 <Text className="ml-1 mr-4 text-gray-500 text-sm">
                   {formatNumber(item.viewCount)}
                 </Text>
-                <Heart size={14} color="#9ca3af" />
+                <Ionicons name="heart" size={14} color="#9ca3af" />
                 <Text className="ml-1 text-gray-500 text-sm">
                   {formatNumber(item.likeCount)}
                 </Text>
@@ -118,7 +118,7 @@ export default function CreateScreen() {
         )}
         ListEmptyComponent={
           <View className="items-center py-12">
-            <Edit3 size={48} color="#9ca3af" />
+            <Ionicons name="create-outline" size={48} color="#9ca3af" />
             <Text className="mt-4 text-gray-500">
               You haven't created any stories yet
             </Text>

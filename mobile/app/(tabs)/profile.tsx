@@ -1,17 +1,7 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import {
-  Settings,
-  Bell,
-  HelpCircle,
-  LogOut,
-  ChevronRight,
-  BookOpen,
-  Edit3,
-  Heart,
-  Users,
-} from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function ProfileScreen() {
@@ -69,28 +59,28 @@ export default function ProfileScreen() {
           <View className="flex-row justify-around">
             <View className="items-center">
               <View className="flex-row items-center">
-                <BookOpen size={18} color="#eab308" />
+                <Ionicons name="book" size={18} color="#eab308" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">12</Text>
               </View>
               <Text className="text-gray-400 text-sm">Read</Text>
             </View>
             <View className="items-center">
               <View className="flex-row items-center">
-                <Edit3 size={18} color="#eab308" />
+                <Ionicons name="create-outline" size={18} color="#eab308" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">3</Text>
               </View>
               <Text className="text-gray-400 text-sm">Written</Text>
             </View>
             <View className="items-center">
               <View className="flex-row items-center">
-                <Heart size={18} color="#eab308" />
+                <Ionicons name="heart" size={18} color="#eab308" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">156</Text>
               </View>
               <Text className="text-gray-400 text-sm">Likes</Text>
             </View>
             <View className="items-center">
               <View className="flex-row items-center">
-                <Users size={18} color="#eab308" />
+                <Ionicons name="people" size={18} color="#eab308" />
                 <Text className="text-xl font-bold text-gray-900 ml-1">24</Text>
               </View>
               <Text className="text-gray-400 text-sm">Followers</Text>
@@ -101,17 +91,17 @@ export default function ProfileScreen() {
         {/* 菜单项 */}
         <View className="bg-white mb-2">
           <MenuItem
-            icon={<Bell size={22} color="#6b7280" />}
+            icon={<Ionicons name="notifications" size={22} color="#6b7280" />}
             label="Notifications"
             onPress={() => router.push('/notifications')}
           />
           <MenuItem
-            icon={<Settings size={22} color="#6b7280" />}
+            icon={<Ionicons name="settings" size={22} color="#6b7280" />}
             label="Settings"
             onPress={() => router.push('/settings')}
           />
           <MenuItem
-            icon={<HelpCircle size={22} color="#6b7280" />}
+            icon={<Ionicons name="help-circle" size={22} color="#6b7280" />}
             label="Help & Support"
             onPress={() => {}}
           />
@@ -123,7 +113,7 @@ export default function ProfileScreen() {
             onPress={handleLogout}
             className="flex-row items-center px-4 py-4"
           >
-            <LogOut size={22} color="#ef4444" />
+            <Ionicons name="log-out" size={22} color="#ef4444" />
             <Text className="ml-3 text-red-500 font-medium">Sign Out</Text>
           </Pressable>
         </View>
@@ -155,7 +145,7 @@ function MenuItem({
         {icon}
         <Text className="ml-3 text-gray-700">{label}</Text>
       </View>
-      <ChevronRight size={20} color="#9ca3af" />
+      <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
     </Pressable>
   );
 }

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function LoginScreen() {
@@ -51,7 +51,7 @@ export default function LoginScreen() {
         {/* 关闭按钮 */}
         <View className="flex-row justify-end px-4 py-2">
           <Pressable onPress={() => router.back()} className="p-2">
-            <X size={24} color="#6b7280" />
+            <Ionicons name="close" size={24} color="#6b7280" />
           </Pressable>
         </View>
 
@@ -74,7 +74,7 @@ export default function LoginScreen() {
           {/* 邮箱输入 */}
           <View className="mb-4">
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
-              <Mail size={20} color="#9ca3af" />
+              <Ionicons name="mail" size={20} color="#9ca3af" />
               <TextInput
                 className="flex-1 ml-3 text-gray-900"
                 placeholder="Email"
@@ -90,7 +90,7 @@ export default function LoginScreen() {
           {/* 密码输入 */}
           <View className="mb-6">
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3">
-              <Lock size={20} color="#9ca3af" />
+              <Ionicons name="lock-closed" size={20} color="#9ca3af" />
               <TextInput
                 className="flex-1 ml-3 text-gray-900"
                 placeholder="Password"
@@ -101,9 +101,9 @@ export default function LoginScreen() {
               />
               <Pressable onPress={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
-                  <EyeOff size={20} color="#9ca3af" />
+                  <Ionicons name="eye-off" size={20} color="#9ca3af" />
                 ) : (
-                  <Eye size={20} color="#9ca3af" />
+                  <Ionicons name="eye" size={20} color="#9ca3af" />
                 )}
               </Pressable>
             </View>

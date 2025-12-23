@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Heart, MessageCircle, Bookmark, Share2 } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import { formatNumber } from '@/lib/utils/format';
@@ -114,18 +114,18 @@ function StoryCard({ story }: { story: Story }) {
             </View>
             <View className="flex-row items-center space-x-6">
               <Pressable className="flex-row items-center">
-                <Heart size={20} color="#9ca3af" />
+                <Ionicons name="heart" size={20} color="#9ca3af" />
                 <Text className="text-gray-500 ml-1">{formatNumber(story.likeCount)}</Text>
               </Pressable>
               <Pressable className="flex-row items-center">
-                <MessageCircle size={20} color="#9ca3af" />
+                <Ionicons name="chatbubble-outline" size={20} color="#9ca3af" />
                 <Text className="text-gray-500 ml-1">{formatNumber(story.commentCount)}</Text>
               </Pressable>
               <Pressable>
-                <Bookmark size={20} color="#9ca3af" />
+                <Ionicons name="bookmark" size={20} color="#9ca3af" />
               </Pressable>
               <Pressable>
-                <Share2 size={20} color="#9ca3af" />
+                <Ionicons name="share-social" size={20} color="#9ca3af" />
               </Pressable>
             </View>
           </View>
@@ -157,7 +157,7 @@ export default function ForYouScreen() {
           onPress={() => router.push('/search')}
           className="flex-row items-center bg-gray-100 rounded-full px-4 py-3"
         >
-          <Search size={20} color="#9ca3af" />
+          <Ionicons name="search" size={20} color="#9ca3af" />
           <Text className="text-gray-400 ml-2">Search stories...</Text>
         </Pressable>
       </View>

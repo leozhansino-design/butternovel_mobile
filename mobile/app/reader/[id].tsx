@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, Settings, Heart, MessageCircle, Star } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -100,13 +100,13 @@ export default function ReaderScreen() {
         <SafeAreaView className="absolute top-0 left-0 right-0 z-10 bg-black/60">
           <View className="flex-row items-center justify-between px-4 py-3">
             <Pressable onPress={() => router.back()} className="p-2">
-              <ChevronLeft size={28} color="#fff" />
+              <Ionicons name="chevron-back" size={28} color="#fff" />
             </Pressable>
             <Text className="text-white font-semibold text-lg flex-1 text-center" numberOfLines={1}>
               {story.title}
             </Text>
             <Pressable className="p-2">
-              <Settings size={24} color="#fff" />
+              <Ionicons name="settings" size={24} color="#fff" />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -144,15 +144,15 @@ export default function ReaderScreen() {
           </Text>
           <View className="flex-row items-center space-x-6">
             <Pressable className="items-center">
-              <Heart size={28} color="#ef4444" />
+              <Ionicons name="heart" size={28} color="#ef4444" />
               <Text className="text-gray-500 mt-1">{story.likeCount}</Text>
             </Pressable>
             <Pressable className="items-center">
-              <Star size={28} color="#eab308" />
+              <Ionicons name="star" size={28} color="#eab308" />
               <Text className="text-gray-500 mt-1">{story.averageRating}</Text>
             </Pressable>
             <Pressable className="items-center">
-              <MessageCircle size={28} color="#6b7280" />
+              <Ionicons name="chatbubble-outline" size={28} color="#6b7280" />
               <Text className="text-gray-500 mt-1">Comment</Text>
             </Pressable>
           </View>

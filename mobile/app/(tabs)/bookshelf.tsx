@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { BookOpen, Clock, Bookmark } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 
 type TabType = 'favorites' | 'history';
@@ -74,7 +74,8 @@ export default function BookshelfScreen() {
             activeTab === 'favorites' ? 'border-b-2 border-butter-500' : ''
           }`}
         >
-          <Bookmark
+          <Ionicons
+            name="bookmark"
             size={18}
             color={activeTab === 'favorites' ? '#eab308' : '#9ca3af'}
           />
@@ -92,7 +93,8 @@ export default function BookshelfScreen() {
             activeTab === 'history' ? 'border-b-2 border-butter-500' : ''
           }`}
         >
-          <Clock
+          <Ionicons
+            name="time"
             size={18}
             color={activeTab === 'history' ? '#eab308' : '#9ca3af'}
           />
@@ -117,7 +119,7 @@ export default function BookshelfScreen() {
             className="flex-row items-center p-4 mb-3 bg-gray-50 rounded-xl"
           >
             <View className="w-14 h-18 bg-gray-200 rounded-lg items-center justify-center">
-              <BookOpen size={24} color="#9ca3af" />
+              <Ionicons name="book" size={24} color="#9ca3af" />
             </View>
             <View className="flex-1 ml-4">
               <Text className="font-semibold text-gray-900" numberOfLines={1}>
@@ -140,7 +142,7 @@ export default function BookshelfScreen() {
         )}
         ListEmptyComponent={
           <View className="items-center py-12">
-            <BookOpen size={48} color="#9ca3af" />
+            <Ionicons name="book" size={48} color="#9ca3af" />
             <Text className="mt-4 text-gray-500">
               {activeTab === 'favorites'
                 ? 'No favorites yet'
