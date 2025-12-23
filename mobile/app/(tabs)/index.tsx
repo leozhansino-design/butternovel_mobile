@@ -193,19 +193,70 @@ function FullScreenStoryCard({ story, isActive }: { story: Story; isActive: bool
   );
 }
 
+// 临时模拟数据 - API 部署后可删除
+const MOCK_STORIES: Story[] = [
+  {
+    id: '1',
+    title: 'The Hidden Heir',
+    blurb: 'Everyone thought he was just a poor delivery boy. But when his grandfather, the richest man in the country, suddenly passes away, his true identity is revealed...',
+    authorId: '1',
+    authorName: 'ButterNovel',
+    likeCount: 125000,
+    commentCount: 3420,
+    readCount: 850000,
+    wordCount: 18000,
+    category: 'Urban',
+    createdAt: '2024-01-15',
+    averageRating: 4.8,
+    slug: 'the-hidden-heir',
+  },
+  {
+    id: '2',
+    title: 'Rebirth of the CEO',
+    blurb: 'After being betrayed by her husband and best friend, she wakes up 10 years in the past. This time, she will build her own empire and make them pay...',
+    authorId: '1',
+    authorName: 'ButterNovel',
+    likeCount: 89000,
+    commentCount: 5670,
+    readCount: 620000,
+    wordCount: 22000,
+    category: 'Rebirth',
+    createdAt: '2024-01-10',
+    averageRating: 4.9,
+    slug: 'rebirth-of-the-ceo',
+  },
+  {
+    id: '3',
+    title: 'Dragon King Returns',
+    blurb: 'He was the most feared warrior in history, but disappeared for 3 years. Now he returns to find his wife being bullied. Heaven will tremble...',
+    authorId: '1',
+    authorName: 'ButterNovel',
+    likeCount: 250000,
+    commentCount: 12000,
+    readCount: 1500000,
+    wordCount: 25000,
+    category: 'Fantasy',
+    createdAt: '2024-01-05',
+    averageRating: 4.7,
+    slug: 'dragon-king-returns',
+  },
+];
+
 export default function ForYouScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
 
-  // 从 API 获取短篇小说列表
-  const { data, isLoading, isError, refetch, isFetching } = useQuery<StoriesResponse>({
+  // 尝试从 API 获取，失败则使用模拟数据
+  const { data, isLoading, refetch, isFetching } = useQuery<StoriesResponse>({
     queryKey: ['shorts', 'for-you'],
     queryFn: () => shortsApi.getList(1, 20),
     staleTime: APP_CONFIG.CACHE_STALE_TIME,
+    retry: 1,
   });
 
-  const stories = data?.stories || [];
+  // API 成功则用真实数据，否则用模拟数据
+  const stories = data?.stories?.length ? data.stories : MOCK_STORIES;
 
   // 监听当前可见项
   const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -239,22 +290,6 @@ export default function ForYouScreen() {
       <View className="flex-1 items-center justify-center bg-slate-900">
         <ActivityIndicator size="large" color="#3b82f6" />
         <Text className="text-slate-400 mt-4">Loading stories...</Text>
-      </View>
-    );
-  }
-
-  // 渲染错误状态
-  if (isError) {
-    return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
-        <Ionicons name="cloud-offline-outline" size={64} color="#64748b" />
-        <Text className="text-slate-400 text-lg mt-4">Failed to load stories</Text>
-        <Pressable
-          onPress={() => refetch()}
-          className="mt-6 px-6 py-3 bg-brand-500 rounded-full"
-        >
-          <Text className="text-white font-medium">Try Again</Text>
-        </Pressable>
       </View>
     );
   }
